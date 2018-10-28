@@ -1,9 +1,11 @@
-<!doctype html>
+<!DOCTYPE doctype html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+    <head>
+        <title>
+            Socket.IO chat
+        </title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; }
       form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
       form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
@@ -33,33 +35,51 @@
         line-height: 20px;
         width:50%;
       }
-
-    </style>
-  </head>
-  <body>
-    <div>
-      <span id="name"></span>
-      <button id="room-one">one</button>
-      <button id="room-one-leave">one leave</button>
-      <div class="user-select">
-        <input id="private-msg" autocomplete="off" />
-        <select id="users"></select>
-        <button id="btn-private-msg">Private</button>
-      </div>
-      <div id="online"></div>
-    </div>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button id="btn-m">Send</button>
-      <input id="ns" autocomplete="off" /><button id="btn-ns">NS-Send</button>
-    </form>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script src="http://chancejs.com/chance.min.js"></script>
- 
-</script>
-    <script>
-      $(function () {
+        </style>
+    </head>
+    <body>
+        <div>
+            <span id="name">
+            </span>
+            <button id="room-one">
+                one
+            </button>
+            <button id="room-one-leave">
+                one leave
+            </button>
+            <div class="user-select">
+                <input autocomplete="off" id="private-msg"/>
+                <select id="users">
+                </select>
+                <button id="btn-private-msg">
+                    Private
+                </button>
+            </div>
+            <div id="online">
+            </div>
+        </div>
+        <ul id="messages">
+        </ul>
+        <form action="">
+            <input autocomplete="off" id="m"/>
+            <button id="btn-m">
+                Send
+            </button>
+            <input autocomplete="off" id="ns"/>
+            <button id="btn-ns">
+                NS-Send
+            </button>
+        </form>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js">
+        </script>
+        <script src="https://code.jquery.com/jquery-1.11.1.js">
+        </script>
+        <script src="http://chancejs.com/chance.min.js">
+        </script>
+    </body>
+</html>
+<script>
+    $(function () {
 
         var name = chance.name()
         $('#name').html(name)
@@ -163,6 +183,4 @@
         });
 
       });
-    </script>
-  </body>
-</html>
+</script>
