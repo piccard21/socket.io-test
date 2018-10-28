@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      #messages { margin-bottom: 40px }
+
+      .name {
+        font-size: 10px;
+        color: orange;
+      }
+      .msg {
+        color: grey;
+      }
+      .typing {
+        font-size: 10px;
+        color: blue;
+      }
+      .user-select { 
+        width:100%;
+      }
+
+      #private-msg {
+        border: 1px solid grey;  
+        line-height: 20px;
+        width:50%;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div>
+      <span id="name"></span>
+      <button id="room-one">one</button>
+      <button id="room-one-leave">one leave</button>
+      <div class="user-select">
+        <input id="private-msg" autocomplete="off" />
+        <select id="users"></select>
+        <button id="btn-private-msg">Private</button>
+      </div>
+      <div id="online"></div>
+    </div>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button id="btn-m">Send</button>
+      <input id="ns" autocomplete="off" /><button id="btn-ns">NS-Send</button>
+    </form>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+ 
+</script>
+    <script>
+      $(function () {
+
+        var name = chance.name()
+        $('#name').html(name)
+        var socket = io({'query': $.param({nickname: name}) });
+        var online = []
+
+        $('#btn-m').click(function(e){
+          e.preventDefault()
+          socket.emit('chat message', {name, msg: $('#m').val()});
+
+          $li = $('<li>')
+          $name = $("<span>").addClass('name').text("I say: ")
+          $msg = $("<span>").text($('#m').val()).addClass('msg')
+          $('#messages').append($li).append($name).append($msg)
+
+          $('#m').val('');
+          return false;
+        });
+
+        $('#m').focus(function(e){
+          e.preventDefault() 
+          socket.emit('typing', {name, msg: null});
+        });
+
+
+        $('#btn-private-msg').click(function(e){
+          e.preventDefault()
+          socket.emit('private message', {from: name, to: $('#users').val(), msg: $('#private-msg').val()});
+ 
+
+          $('#private-msg').val('');
+          return false;
+        });
+
+        socket.on('online', function (data) {
+          online = data
+          $('#online').html(data.join(", "))
+
+ 
+         data = data.map(e => ({
+            value: e,
+            text: e
+          })) 
+ 
+          $('#users').empty()
+          $.each(data,function(index,json){
+            if(json.text == name) return true;
+            $('#users').append($("<option></option>").attr("value", json.value).text(json.text));
+          });     
+        });
+        
+
+        socket.on('typing', function(data){
+          $li = $('<li>')
+          $name = $("<span>").addClass('typing').text(data.name +" is typing") 
+          $('#messages').append($li).append($name) 
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on('chat message', function(data){
+          $li = $('<li>')
+          $name = $("<span>").addClass('name').text(data.name +"says: ")
+          $msg = $("<span>").text(data.msg).addClass('msg')
+          $('#messages').append($li).append($name).append($msg)
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+
+
+        socket.on('broadcast', function(msg){
+          $('#messages').append($('<li>').text("bc: "+msg));
+        });
+
+        // namespace
+        var nssocket = io('/my-namespace');
+
+        nssocket.on('ns-hi', function(msg){
+          $('#messages').append($('<li>').text("ns-hi: "+msg));
+        });
+        nssocket.on('ns-chat-message', function(msg){
+          $('#messages').append($('<li>').text("ns-chat-message: "+msg));
+        });
+
+
+        $('#btn-ns').click(function(e){
+          e.preventDefault()
+          nssocket.emit('ns-chat-message', $('#ns').val());
+          $('#ns').val('');
+          return false;
+        });
+
+
+        $('#room-one').click(function(e){
+          e.preventDefault()
+          socket.emit('room', {name, room: 'room-one'});
+          return false;
+        });
+        $('#room-one-leave').click(function(e){
+          e.preventDefault()
+          socket.emit('room-leave', 'room-one');
+          return false;
+        });
+
+      });
+    </script>
+  </body>
+</html>
